@@ -1,0 +1,91 @@
+.grid {
+    /* display: grid; */
+    display: flex;
+    outline: none !important;
+    /* overflow: hidden; */
+    overflow: auto;
+    position: relative;
+    transition: transform .2s;
+    width: calc(100% + 600px);
+    height: 100vh;
+    will-change: transform;
+    flex-direction: column;
+}
+::-webkit-scrollbar {
+  display: none;
+}
+
+.row {
+    /* width: 10000px; */
+    position: relative;
+    display: flex;
+    /* height: 10000px; */
+    /* transition: transform .2s; */
+    min-height: 200px;
+}
+
+.gridContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.rowWrapper {
+    position: absolute;
+}
+
+.cell {
+    position: absolute;
+    top: 0;
+    transition: transform 1s;
+    width: 290px;
+    height: 190px;
+    overflow: hidden;
+    outline: none !important;
+    border-radius: 10px;
+}
+.trigger {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    width: 10px;
+    background-color: red;
+}
+.click {
+    position: absolute;
+    z-index: 100;
+    top: 500px;
+}
+
+.image {
+    width: 290px;
+    height: 190px;
+    transition: transform .6s;
+}
+
+.image-container img {
+    width:100%;
+    
+}
+
+.image-container .blurry {
+    filter:blur(10px);
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:2;
+}
+
+
+.cell:focus {
+    box-shadow: 0 -20px 15px -10px rgba(0, 0, 0, 0.5) inset,
+              0 20px 15px -10px rgba(0, 0, 0, 0.4) inset,
+              0 0 10px rgba(0, 0, 0, 0.3);
+    border: 2px solid red;
+}
+
+.cell:focus > .image {
+    transform: scale(1.2)
+}
