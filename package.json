@@ -9,10 +9,8 @@
     "react": "^16.13.1",
     "react-cache": "^2.0.0-alpha.1",
     "react-dom": "^16.13.1",
-    "react-inview-monitor": "^2.3.0",
     "react-scripts": "3.4.1",
-    "react-slick": "^0.26.1",
-    "slick-carousel": "^1.8.1"
+    "react-window": "^1.8.5"
   },
   "scripts": {
     "start": "react-scripts start",

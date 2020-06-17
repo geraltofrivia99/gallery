@@ -1,1 +1,1 @@
-export { Grid } from './Grid';
+export { GridComp as Grid } from './Grid';

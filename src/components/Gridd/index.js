@@ -78,24 +78,9 @@ function getRightWidth() {
   }
 
   function onScroll(e) {
-    // if (toScroll !== null && e.target.scrollTop === toScroll) {
-    //   const a = Math.min(
-    //     data.length - visibleRows - 1,
-    //     Math.floor((rootRef.current.scrollTop + 200) / rowHeight)
-    //   )
-    //   console.log(a, 'nextStart', active.row, ranged.bottom)
-    //   // if (active.row + 1 === ranged.bottom) {
-    //   //   setVertical('down');
-    //   // }
-    //   setStart(a);
-    //   toScroll = null;
-    // }
     if (prevTop !== e.target.scrollTop) { 
         const next = Math.floor(e.target.scrollTop / rowHeight);
         setStart(next);
-        // if (next !== start) {
-
-        // }
         prevTop = e.target.scrollTop;
     } else if (prevLeft !== e.target.scrollLeft) {
         const a = Math.floor(e.target.scrollLeft / 300); 
@@ -103,19 +88,20 @@ function getRightWidth() {
         prevLeft = e.target.scrollLeft;
     }
   }
-  const thScroll = throttle(onScroll, 100);
+  // const thScroll = throttle(onScroll, 100);
   
   React.useEffect(() => {
     gridCoords.right = rootRef.current.offsetWidth;
+    document.scrollTop = 0;
     // gridCoords.bottom = rootRef.current.offsetHeight;
     gridCoords.bottom = window.innerHeight;
     rootRef.current.scrollTo({ top: 0, left: 0 })
     focusedElement = rootRef.current.childNodes[1].childNodes[0].getElementsByClassName('celltd')[0];
     focusedElement.focus({preventScroll:true});
-    rootRef.current.addEventListener('scroll', thScroll);
+    rootRef.current.addEventListener('scroll', onScroll);
 
     return () => {
-      rootRef.current.removeEventListener('scroll', thScroll);
+      rootRef.current.removeEventListener('scroll', onScroll);
     }
   }, [visibleRows, rowHeight]);
   
@@ -130,7 +116,7 @@ function getRightWidth() {
   function onKeyDown(e) { //dsa
     e.preventDefault();
     e.stopPropagation();
-    const [ row, col ] = document.activeElement.id.split('');
+    // const [ row, col ] = document.activeElement.id.split('');
     prevKey = e.keyCode;
     if (e.keyCode == 87) { //up
       active.row = active.row === 0 ? 14 : active.row - 1;

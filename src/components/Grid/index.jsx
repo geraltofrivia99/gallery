@@ -1,238 +1,166 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './styles.css'
-import RowObserver from './hook';
+import React from "react";
+import { VariableSizeGrid as Grid } from "react-window";
+import { ImageComp } from './ImageComponen'
+import { TOTAL_COLUMN, TOTAL_ROW, INITIAL_COLUMN,
+    INITIAL_ROW, ITEM_HEIGHT, ITEM_WIDTH, PADDING, LEFT, RIGHT, UP, DOWN } from './consts';
 
-let row = 1;
-let visibleRows = 3;
+import "./styles.css";
 
 
-const ImageComp = React.memo(({ src, i }) => {
-    const [loading, setLoading] = useState(false);
-    // console.log(src)
-    useEffect(() => {
-        const img = new Image(300, 200);
-        img.src = src;
-        img.onload = () => setLoading(true);
-        img.onerror = () => setLoading(false);
-    }, [src])
-    if (loading) {
-        return (<img className="image" src={src} alt="img" />)
-    }
-    return <div>Loading...</div>
-})
-
-// const Row = React.memo(({  }) => {
-
-// })
-
-const Cell = React.memo(({ position, src, isActive, id } ) => {
-    const cn = `cell ${isActive ? 'active-cell' : ''}`
-    return (
-        <div id={id} className={cn} style={{ left: position }} tabIndex={0}>
-            {/* <ImageComp src={src} /> */}
-            {src}
-        </div>
-    )
-})
-
-let isNeedRemove = null;
-let gridRect = { right: null, bottom: null };
-let maxPosition = 0;
-let minPosition = 0;
-let sideDirection = 0;
-let changedIndexes = 0;
-let inversionChangedIndexes = 19;
-let activeArrow = null;
-
-export const Grid = React.memo(() => {
-    const [data, setData] = useState(makeTableData(20, 15));
-    // const [setRef, visible] = RowObserver({ rootMargin: '0px' }, addRow);
-    const rootRef = useRef(null);
-    const [activeCell, setActiveCell] = useState({ row: 0, col: 3, pos: 600 });
-    const [translateX, setTranslateX] = useState(-600);
-    const [translateY, setTranslateY] = useState(0);
-    const [start, setStart] = React.useState(0);
-    
-    const keyDown = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.key === 'ArrowRight') {
-            activeArrow='right'
-            sideDirection++;
-            const newActiveCell = { ...activeCell, col: activeCell.col + 1 >= 20 ? 0 : activeCell.col + 1 }
-            setActiveCell(newActiveCell);
-            console.log('FOCUSON', newActiveCell.col);
-            setFocus(newActiveCell.row, newActiveCell.col);
-        } else if (e.key === 'ArrowLeft') {
-            sideDirection--;
-            activeArrow='left'
-            const newActiveCell = { ...activeCell, col: activeCell.col === 0 ? 19 : activeCell.col - 1 }
-            console.log('FOCUSON', newActiveCell.col)
-            setActiveCell(newActiveCell);
-            setFocus(newActiveCell.row, newActiveCell.col);
-        } else if (e.key === 'ArrowDown') {
-            activeArrow='down'
-            const newActiveCell = { ...activeCell, row: activeCell.row + 1 }
-            console.log('FOCUSON', newActiveCell.col)
-            setActiveCell(newActiveCell);
-            // if (newActiveCell) {
-
-            // }
-            setFocus(newActiveCell.row, newActiveCell.col);
-
-            // window.scrollTo({ top: row * 300, behavior: 'smooth' });
-            // addRow();
-            // row++;
-        } else if (e.key === 'ArrowUp') {
-            activeArrow='up'
-            const newActiveCell = { ...activeCell, row: activeCell.row - 1 }
-            console.log('FOCUSON', newActiveCell.col)
-            setActiveCell(newActiveCell);
-            setFocus(newActiveCell.row, newActiveCell.col);
-            // row--;
-            // removeRow();
-            // window.scrollTo({ top: (row - 1) * 300, behavior: 'smooth' });
-        }
-
-    }
-
-    function getTopHeight() {
-        return 200 * start;
-      }
-      function getBottomHeight() {
-        return 200 * (data.length - (start + visibleRows + 1));
-      }
-
-    const firstToLast = (data) => {
-        for (let i = 0; i < data.length; i++) {
-            // const lastPos = data[i][data[i].length - 1].position;
-            data[i][changedIndexes].position = maxPosition + 300;
-        }
-        if (changedIndexes === 19) {
-            changedIndexes = 0;
-        } else {
-            changedIndexes++
-        }
-        maxPosition += 300;
-        minPosition +=300;
-        return data;
-    }
-    const LastToFirst = (data) => {
-        for (let i = 0; i < data.length; i++) {
-            data[i][inversionChangedIndexes].position = minPosition - 300;
-        }
-        if (inversionChangedIndexes === 0) {
-            inversionChangedIndexes = 19;
-        } else {
-            inversionChangedIndexes--
-        }
-        minPosition = minPosition - 300;
-        maxPosition -= 300;
-        return data;
-    }
-    const getTemplateColumns = () => {
-        return 'repeat(20, 300px)';
-    }
-    const getTemplateRows = () => {
-        return `repeat(${data.length}, 200px)`;
-    }
-    useEffect(() => {
-        maxPosition = (data[0].length - 1) * 300;
-        const { right } = rootRef.current.getBoundingClientRect();
-        gridRect.right = right;
-        gridRect.bottom = window.innerHeight;
-        // setFocus(0, 3);
-        // getImages().then(res => console.log(res))
-        // document.addEventListener('scroll', onScroll)
-        return () => {
-            // document.removeEventListener('scroll', onScroll)
-        }
-    }, [])
-
-    function setFocus(row, col) {
-        rootRef.current.childNodes[row].childNodes[0].childNodes[col].focus({preventScroll:true});
-    }
-
-    function addRow() {
-        const el = data.shift();
-        console.log('remove')
-
-        setData([...data, el]);
-    }
-    function removeRow() {
-        const el = data.pop();
-        setData([el, ...data])
-    }
-
-    function onScroll(e) {
-        // console.log('start')
-        console.log(Math.floor(e.target.scrollTop / 200));
-        setStart(Math.floor(e.target.scrollTop / 200))
-    }
-
-    function onFocus(e) {
-        const {left, right, top, bottom} = e.target.getBoundingClientRect();
-        // const scrollLeft = rootRef.current.scrollLeft;
-        if (activeArrow === 'right' && right >= gridRect.right) {
-            const a = parseInt(e.target.style.left);
-            if (a + 600 > maxPosition) {
-                const newData = [...firstToLast(data)];
-                setData(newData);
-            }
-            setTranslateX(translateX - ((right - gridRect.right) + 300));
-            // rootRef.current.scrollTo({ left: scrollLeft + (right - gridRect.right), behavior: 'smooth' });
-        } else if (activeArrow === 'left' && left <= 0) {
-            if (parseInt(e.target.style.left) - 300 <= minPosition) {
-                const newData = [...LastToFirst(data)];
-                setData(newData);
-            }
-            setTranslateX(translateX + 300);
-            // rootRef.current.scrollTo({ left: scrollLeft + left, behavior: 'smooth' });
-        } else if (activeArrow === 'down' && bottom >= gridRect.bottom) {
-            // if () {
-            //     setStart(Math.floor(e.target.scrollTop / 200))
-            // }
-            // setTranslateY(translateY - (bottom - gridRect.right + 100))
-        } else if (activeArrow === 'up' && top <= 0) {
-            // setTranslateY(translateY + 200)
-        }
-    }
-
-    function getCurentTranslate() {
-        return  `translate3d(${ translateX }px, 0px, 0px)`;
-    }
-   
-    return (
-        <>
-        <div className="grid"
-        style={{ transform: getCurentTranslate(), height: 200 * visibleRows + 1, }}
-        ref={rootRef} onKeyDown={keyDown} onFocus={onFocus} onScroll={onScroll}>
-            <div style={{ height: getTopHeight() }} />
-            {data.slice(start, start + visibleRows + 2).map((row, rowIndex) => (
-                    <div
-                        className="row"
-                        style={{ height: '200px' }}
-                        key={row[0].image}
-                    >
-                        {row.map(({ image, position }, col) => (
-                        <Cell key={image} src={image} id={`${rowIndex}${col}`} row={rowIndex + 1} position={position} isActive={col === activeCell.col && rowIndex === activeCell.row} />))}
-                    </div>
-                ))}
-             <div style={{ height: getBottomHeight() }} />  
-           </div>
-        </>
-    )
-})
-
-function makeTableData(w, h) {
-    let i = 1;
-    return new Array(h).fill(0).map(() => {
-      return new Array(w).fill(0).map((_, colIndex) => {
-        return {
-            image: `https://picsum.photos/id/${i++}/300/200`,
-            order: colIndex,
-            position: colIndex * 300
-        };
-      });
+const data = ((w = 20, h = 15) => {
+  let i = 1;
+  return new Array(h).fill(0).map((_, rowIndex) => {
+    return new Array(w).fill(0).map((_, colIndex) => {
+      return {
+        image: `https://picsum.photos/id/${i++}/300/200`,
+        cell: colIndex,
+        rowNumber: rowIndex
+      };
     });
+  });
+})();
+
+const cacheImage = {};
+let prevkey = null;
+
+const Cell = React.memo(({ columnIndex, rowIndex, style }) => {
+    const trulyRowIndex = rowIndex % data.length;
+    const trulyColumnIndex = columnIndex % data[trulyRowIndex].length;
+    const { image: dataImage, cell } = data[trulyRowIndex][trulyColumnIndex];
+    return (
+      <div
+        id={"" + rowIndex + ":" + columnIndex}
+        tabIndex={0}
+        className="cell-inner"
+        key={"" + columnIndex + " " + rowIndex}
+        style={{
+          ...style,
+          left: style.left + PADDING,
+          top: style.top + PADDING,
+          width: style.width - PADDING,
+          height: style.height - PADDING
+        }}
+      >
+        <div className="image-container">
+          <ImageComp image={dataImage} cacheImage={cacheImage}/>
+        </div>
+        <div className="details">
+          <span className="title">Image number in row: {cell} </span>
+          <span className="info">Lorem ...</span>
+       </div>
+      </div>
+    );
+  })
+
+const innerElementType = React.forwardRef(({ style, ...rest }, ref) => (
+  <div
+    ref={ref}
+    style={{
+      ...style,
+      paddingLeft: PADDING,
+      paddingTop: PADDING
+    }}
+    {...rest}
+  />
+));
+
+ export const GridComp = () => {
+  const gridRef = React.useRef();
+  const wrapperRef = React.useRef();
+
+  const onFocus = e => {
+    const { left, right, top, bottom } = e.target.getBoundingClientRect();
+    if (prevkey === 83 && bottom >= window.innerHeight) {
+      e.target.scrollIntoView({ behavior: "smooth", block: "end" });
+    } else if (prevkey === 87 && top <= 0) {
+      e.target.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (prevkey === 68 && right >= wrapperRef.current.offsetWidth) {
+      e.target.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "end"
+      });
+    } else if (prevkey === 65 && left <= 0) {
+      e.target.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "start"
+      });
+    }
+    prevkey = null;
+  };
+  const onKeyDown = e => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.keyCode === 87) {
+      prevkey = 87;
+      setFocus(UP);
+    } else if (e.keyCode === 83) {
+      //down
+      prevkey = 83;
+      setFocus(DOWN);
+    } else if (e.keyCode === 65) {
+      //left
+      prevkey = 65;
+      setFocus(LEFT);
+    } else if (e.keyCode === 68) {
+      //right
+      prevkey = 68;
+      setFocus(RIGHT);
+    }
+  };
+
+  function setFocus(direction) {
+    if (direction === LEFT) {
+        const prev = document.activeElement.previousSibling;
+        if (prev) {
+            prev.focus({ preventScroll: true });
+        }
+    } else if (direction === RIGHT) {
+        const next = document.activeElement.nextSibling;
+        if (next) {
+            next.focus({ preventScroll: true });
+        }
+    } else if (direction === UP) {
+        const [row, column] = document.activeElement.id.split(":");
+        const up = document.getElementById(`${+row - 1}:${column}`);
+        if (up) {
+            up.focus({ preventScroll: true });
+        }
+    } else {
+        const [row, column] = document.activeElement.id.split(":");
+        const down = document.getElementById(`${+row + 1}:${column}`);
+        if (down) {
+            down.focus({ preventScroll: true });
+        }
+    }
   }
+
+  React.useEffect(() => {
+    gridRef.current.scrollToItem({
+      align: "start",
+      columnIndex: INITIAL_COLUMN,
+      rowIndex: INITIAL_ROW
+    });
+    setTimeout(() => {
+        document.getElementById(`${INITIAL_ROW}:${INITIAL_COLUMN}`).focus({preventScroll: true});
+    }, 500)
+  }, []);
+  return (
+    <div onFocus={onFocus} onKeyDown={onKeyDown} ref={wrapperRef}>
+      <Grid
+        className="Grid"
+        columnCount={TOTAL_COLUMN}
+        columnWidth={() => ITEM_WIDTH + PADDING}
+        height={window.innerHeight}
+        innerElementType={innerElementType}
+        rowCount={TOTAL_ROW}
+        rowHeight={() => ITEM_HEIGHT + PADDING}
+        width={window.innerWidth}
+        ref={gridRef}
+      >
+        {Cell}
+      </Grid>
+    </div>
+  );
+};
