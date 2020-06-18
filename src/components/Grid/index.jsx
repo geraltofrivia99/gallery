@@ -4,7 +4,7 @@ import { ImageComp } from './ImageComponen'
 import { debounce } from './utils';
 import { TOTAL_COLUMN, TOTAL_ROW, INITIAL_COLUMN,
     INITIAL_ROW, ITEM_HEIGHT, ITEM_WIDTH, PADDING,
-    LEFT, RIGHT, UP, DOWN, PREVENT_SCROLL } from './consts';
+    LEFT, RIGHT, UP, DOWN, PREVENT_SCROLL, DEBOUNCE_TIME } from './consts';
 
 import "./styles.css";
 
@@ -26,33 +26,33 @@ const cacheImage = {};
 let prevkey = null;
 
 const Cell = memo(({ columnIndex, rowIndex, style }) => {
-    const trulyRowIndex = rowIndex % data.length;
-    const trulyColumnIndex = columnIndex % data[trulyRowIndex].length;
-    const { image: dataImage, cell } = data[trulyRowIndex][trulyColumnIndex];
-    return (
-      <div
-        id={"" + rowIndex + ":" + columnIndex}
-        tabIndex={0}
-        className="cell-inner"
-        key={"" + columnIndex + " " + rowIndex}
-        style={{
-          ...style,
-          left: style.left + PADDING,
-          top: style.top + PADDING,
-          width: style.width - PADDING,
-          height: style.height - PADDING
-        }}
-      >
-        <div className="image-container">
-          <ImageComp image={dataImage} cacheImage={cacheImage}/>
-        </div>
-        <div className="details">
-          <span className="title">Image number in row: {cell} </span>
-          <span className="info">Lorem ...</span>
-       </div>
+  const trulyRowIndex = rowIndex % data.length;
+  const trulyColumnIndex = columnIndex % data[trulyRowIndex].length;
+  const { image: dataImage, cell } = data[trulyRowIndex][trulyColumnIndex];
+  return (
+    <div
+      id={"" + rowIndex + ":" + columnIndex}
+      tabIndex={0}
+      className="cell-inner"
+      key={"" + columnIndex + " " + rowIndex}
+      style={{
+        ...style,
+        left: style.left + PADDING,
+        top: style.top + PADDING,
+        width: style.width - PADDING,
+        height: style.height - PADDING
+      }}
+    >
+      <div className="image-container">
+        <ImageComp image={dataImage} cacheImage={cacheImage}/>
       </div>
-    );
-  })
+      <div className="details">
+        <span className="title">Image number in row: {cell} </span>
+        <span className="info">Lorem ...</span>
+      </div>
+    </div>
+  );
+})
 
 const innerElementType = forwardRef(({ style, ...rest }, ref) => (
   <div
@@ -112,7 +112,7 @@ export const GridComp = () => {
     }
   };
 
-  const debounceKeyDown = useCallback(debounce(onKeyDown, 300), []);
+  const debounceKeyDown = useCallback(debounce(onKeyDown, DEBOUNCE_TIME), []);
 
   const setFocusToElement = (el) => {
     if (el) {

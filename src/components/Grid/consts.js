@@ -12,3 +12,4 @@ export const UP = 'UP';
 export const DOWN = 'DOWN';
 
 export const PREVENT_SCROLL = { preventScroll: true };
+export const DEBOUNCE_TIME = 300;
