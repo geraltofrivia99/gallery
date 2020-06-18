@@ -27,34 +27,34 @@ const requestAnimFrame = (function(){
 
 export function scrollTo(scrollingEl, to, duration, isVertical, callback) {
     function moveVertical(amount) {
-        scrollingEl.scrollTop = amount;
+      scrollingEl.scrollTop = amount;
     }
     function moveHorizontal(amount) {
-        scrollingEl.scrollLeft = amount;
+      scrollingEl.scrollLeft = amount;
     }
     function position() {
-        return isVertical ? scrollingEl.scrollTop : scrollingEl.scrollLeft;
+      return isVertical ? scrollingEl.scrollTop : scrollingEl.scrollLeft;
     }
-    var start = position(),
-        change = to - start,
-        currentTime = 0,
-        increment = 20;
+    const start = position(),
+      change = to - start,
+      currentTime = 0,
+      increment = 20;
     duration = (typeof(duration) === 'undefined') ? 500 : duration;
-    var animateScroll = function() {
-        currentTime += increment;
-        var val = inOutQuintic(currentTime, start, change, duration);
-        if (isVertical) {
-            moveVertical(val);
-        } else {
-            moveHorizontal(val);
-        }
-        if (currentTime < duration) {
+    const animateScroll = function() {
+      currentTime += increment;
+      var val = inOutQuintic(currentTime, start, change, duration);
+      if (isVertical) {
+          moveVertical(val);
+      } else {
+          moveHorizontal(val);
+      }
+      if (currentTime < duration) {
         requestAnimFrame(animateScroll);
-        } else {
+      } else {
         if (callback && typeof(callback) === 'function') {
             callback();
         }
-        }
+      }
     };
     animateScroll();
 }
