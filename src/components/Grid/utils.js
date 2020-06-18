@@ -1,24 +1,8 @@
 
-export function debounce(f, ms) {
-
-    let isCooldown = false;
-  
-    return function() {
-      if (isCooldown) return;
-  
-      f.apply(this, arguments);
-  
-      isCooldown = true;
-  
-      setTimeout(() => isCooldown = false, ms);
-    };
-  
-  }
-
-  function inOutQuintic(t, b, c, d) {
-    var ts = (t/=d)*t,
-    tc = ts*t;
-    return b+c*(6*tc*ts + -15*ts*ts + 10*tc);
+function inOutQuintic(t, b, c, d) {
+  var ts = (t/=d)*t,
+  tc = ts*t;
+  return b+c*(6*tc*ts + -15*ts*ts + 10*tc);
 };
 
 const requestAnimFrame = (function(){
@@ -58,3 +42,15 @@ export function scrollTo(scrollingEl, to, duration, isVertical, callback) {
     };
     animateScroll();
 }
+
+
+export function debounce(f, ms) {
+  let isCooldown = false;
+  return function() {
+    if (isCooldown) return;
+    f.apply(this, arguments);
+    isCooldown = true;
+    setTimeout(() => isCooldown = false, ms);
+  };
+}
+
