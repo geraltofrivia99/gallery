@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useCallback, useRef, useEffect, forwardRef, memo } from "react";
 import { VariableSizeGrid as Grid } from "react-window";
 import { ImageComp } from './ImageComponen'
+import { debounce } from './utils';
 import { TOTAL_COLUMN, TOTAL_ROW, INITIAL_COLUMN,
-    INITIAL_ROW, ITEM_HEIGHT, ITEM_WIDTH, PADDING, LEFT, RIGHT, UP, DOWN } from './consts';
+    INITIAL_ROW, ITEM_HEIGHT, ITEM_WIDTH, PADDING,
+    LEFT, RIGHT, UP, DOWN, PREVENT_SCROLL } from './consts';
 
 import "./styles.css";
 
@@ -23,7 +25,7 @@ const data = ((w = 20, h = 15) => {
 const cacheImage = {};
 let prevkey = null;
 
-const Cell = React.memo(({ columnIndex, rowIndex, style }) => {
+const Cell = memo(({ columnIndex, rowIndex, style }) => {
     const trulyRowIndex = rowIndex % data.length;
     const trulyColumnIndex = columnIndex % data[trulyRowIndex].length;
     const { image: dataImage, cell } = data[trulyRowIndex][trulyColumnIndex];
@@ -52,7 +54,7 @@ const Cell = React.memo(({ columnIndex, rowIndex, style }) => {
     );
   })
 
-const innerElementType = React.forwardRef(({ style, ...rest }, ref) => (
+const innerElementType = forwardRef(({ style, ...rest }, ref) => (
   <div
     ref={ref}
     style={{
@@ -64,9 +66,9 @@ const innerElementType = React.forwardRef(({ style, ...rest }, ref) => (
   />
 ));
 
- export const GridComp = () => {
-  const gridRef = React.useRef();
-  const wrapperRef = React.useRef();
+export const GridComp = () => {
+  const gridRef = useRef();
+  const wrapperRef = useRef();
 
   const onFocus = e => {
     const { left, right, top, bottom } = e.target.getBoundingClientRect();
@@ -110,44 +112,40 @@ const innerElementType = React.forwardRef(({ style, ...rest }, ref) => (
     }
   };
 
-  function setFocus(direction) {
-    if (direction === LEFT) {
-        const prev = document.activeElement.previousSibling;
-        if (prev) {
-            prev.focus({ preventScroll: true });
-        }
-    } else if (direction === RIGHT) {
-        const next = document.activeElement.nextSibling;
-        if (next) {
-            next.focus({ preventScroll: true });
-        }
-    } else if (direction === UP) {
-        const [row, column] = document.activeElement.id.split(":");
-        const up = document.getElementById(`${+row - 1}:${column}`);
-        if (up) {
-            up.focus({ preventScroll: true });
-        }
-    } else {
-        const [row, column] = document.activeElement.id.split(":");
-        const down = document.getElementById(`${+row + 1}:${column}`);
-        if (down) {
-            down.focus({ preventScroll: true });
-        }
+  const debounceKeyDown = useCallback(debounce(onKeyDown, 300), []);
+
+  const setFocusToElement = (el) => {
+    if (el) {
+      el.focus(PREVENT_SCROLL);
     }
   }
 
-  React.useEffect(() => {
+  const setFocus = (direction) => {
+    if (direction === LEFT) {
+        setFocusToElement(document.activeElement.previousSibling);
+    } else if (direction === RIGHT) {
+        setFocusToElement(document.activeElement.nextSibling);
+    } else if (direction === UP) {
+        const [row, column] = document.activeElement.id.split(":");
+        setFocusToElement(document.getElementById(`${+row - 1}:${column}`));
+    } else {
+        const [row, column] = document.activeElement.id.split(":");
+        setFocusToElement(document.getElementById(`${+row + 1}:${column}`));
+    }
+  }
+
+  useEffect(() => {
     gridRef.current.scrollToItem({
       align: "start",
       columnIndex: INITIAL_COLUMN,
       rowIndex: INITIAL_ROW
     });
     setTimeout(() => {
-        document.getElementById(`${INITIAL_ROW}:${INITIAL_COLUMN}`).focus({preventScroll: true});
+      document.getElementById(`${INITIAL_ROW}:${INITIAL_COLUMN}`).focus(PREVENT_SCROLL);
     }, 500)
   }, []);
   return (
-    <div onFocus={onFocus} onKeyDown={onKeyDown} ref={wrapperRef}>
+    <div onFocus={onFocus} onKeyDown={debounceKeyDown} ref={wrapperRef}>
       <Grid
         className="Grid"
         columnCount={TOTAL_COLUMN}

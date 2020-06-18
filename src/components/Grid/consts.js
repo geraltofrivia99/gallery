@@ -6,7 +6,9 @@ export const ITEM_WIDTH = 300;
 export const ITEM_HEIGHT = 200;
 export const PADDING = 5;
 
-export const LEFT = 'left';
+export const LEFT = 'LEFT';
 export const RIGHT = 'RIGHT';
 export const UP = 'UP';
 export const DOWN = 'DOWN';
+
+export const PREVENT_SCROLL = { preventScroll: true };
