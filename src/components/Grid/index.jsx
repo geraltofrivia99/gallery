@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useEffect, forwardRef, memo } from "react";
 import { VariableSizeGrid as Grid } from "react-window";
 import { ImageComp } from './ImageComponen'
-import { debounce } from './utils';
+import { debounce, scrollTo } from './utils';
 import { TOTAL_COLUMN, TOTAL_ROW, INITIAL_COLUMN,
     INITIAL_ROW, ITEM_HEIGHT, ITEM_WIDTH, PADDING,
     LEFT, RIGHT, UP, DOWN, PREVENT_SCROLL, DEBOUNCE_TIME } from './consts';
@@ -73,21 +73,17 @@ export const GridComp = () => {
   const onFocus = e => {
     const { left, right, top, bottom } = e.target.getBoundingClientRect();
     if (prevkey === 83 && bottom >= window.innerHeight) {
-      e.target.scrollIntoView({ behavior: "smooth", block: "end" });
+      const to = (bottom - window.innerHeight) + gridRef.current._outerRef.scrollTop;
+      scrollTo(gridRef.current._outerRef, to, 1000, true);
     } else if (prevkey === 87 && top <= 0) {
-      e.target.scrollIntoView({ behavior: "smooth", block: "start" });
+      const to = gridRef.current._outerRef.scrollTop - Math.abs(top);
+      scrollTo(gridRef.current._outerRef, to, 1000, true);
     } else if (prevkey === 68 && right >= wrapperRef.current.offsetWidth) {
-      e.target.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "end"
-      });
+      const to = (right - wrapperRef.current.offsetWidth) + gridRef.current._outerRef.scrollLeft;
+      scrollTo(gridRef.current._outerRef, to, 1000, false);
     } else if (prevkey === 65 && left <= 0) {
-      e.target.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "start"
-      });
+      const to = gridRef.current._outerRef.scrollLeft - Math.abs(left);
+      scrollTo(gridRef.current._outerRef, to, 1000, false);
     }
     prevkey = null;
   };
