@@ -19,7 +19,7 @@ export function scrollTo(scrollingEl, to, duration, isVertical, callback) {
     function position() {
       return isVertical ? scrollingEl.scrollTop : scrollingEl.scrollLeft;
     }
-    const start = position(),
+    let start = position(),
       change = to - start,
       currentTime = 0,
       increment = 20;

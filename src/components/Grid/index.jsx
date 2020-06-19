@@ -72,17 +72,18 @@ export const GridComp = () => {
 
   const onFocus = e => {
     const { left, right, top, bottom } = e.target.getBoundingClientRect();
+    const { current: { _outerRef: { scrollTop, scrollLeft } } } = gridRef;
     if (prevkey === 83 && bottom >= window.innerHeight) {
-      const to = (bottom - window.innerHeight) + gridRef.current._outerRef.scrollTop;
+      const to = (bottom - window.innerHeight) + scrollTop;
       scrollTo(gridRef.current._outerRef, to, 1000, true);
     } else if (prevkey === 87 && top <= 0) {
-      const to = gridRef.current._outerRef.scrollTop - Math.abs(top);
+      const to = scrollTop - Math.abs(top);
       scrollTo(gridRef.current._outerRef, to, 1000, true);
     } else if (prevkey === 68 && right >= wrapperRef.current.offsetWidth) {
-      const to = (right - wrapperRef.current.offsetWidth) + gridRef.current._outerRef.scrollLeft;
+      const to = (right - wrapperRef.current.offsetWidth) + scrollLeft;
       scrollTo(gridRef.current._outerRef, to, 1000, false);
     } else if (prevkey === 65 && left <= 0) {
-      const to = gridRef.current._outerRef.scrollLeft - Math.abs(left);
+      const to = scrollLeft - Math.abs(left);
       scrollTo(gridRef.current._outerRef, to, 1000, false);
     }
     prevkey = null;
