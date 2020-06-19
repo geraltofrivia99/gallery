@@ -1,6 +1,6 @@
 
 function inOutQuintic(t, b, c, d) {
-  var ts = (t/=d)*t,
+  let ts = (t/=d)*t,
   tc = ts*t;
   return b+c*(6*tc*ts + -15*ts*ts + 10*tc);
 };
@@ -26,7 +26,7 @@ export function scrollTo(scrollingEl, to, duration, isVertical, callback) {
     duration = (typeof(duration) === 'undefined') ? 500 : duration;
     const animateScroll = function() {
       currentTime += increment;
-      var val = inOutQuintic(currentTime, start, change, duration);
+      let val = inOutQuintic(currentTime, start, change, duration);
       if (isVertical) {
           moveVertical(val);
       } else {
